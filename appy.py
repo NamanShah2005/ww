@@ -568,7 +568,7 @@ In terms of your interaction patterns, your highest activity time is during {use
 
 Additionally, your favorite word (the most used during our chats) is '{user_summary['top_word'].iloc[0]}', and {"You haven't used any emojis during your conversation" if user_summary['most_used_emoji'].iloc[0] == 0 else f" your most used emoji is {user_summary['most_used_emoji'].iloc[0]}"}.
 
-Thank you for your participation! For further details, please see below. Have a great day!
+For further details, please see below. Have a great day!
 """
             st.write(text)
         st.markdown("<h1 style='border-bottom : 2px solid white; text-align: center;'>Top Statistics</h1>", unsafe_allow_html=True)
