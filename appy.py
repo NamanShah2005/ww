@@ -203,21 +203,27 @@ def most_busy_users(name, df, dfe):
         return sorted_names_chats
     else:
         return None
-    
+
 def generate_message_pie_chart(name, df):
     if name == 'Overall':
         user_message_counts = df['user'].value_counts()
-        sorted_users = user_message_counts.index.tolist()
-        fig, ax = plt.subplots(figsize=(8, 8))  # Set the figure size for better visualization
-        sorted_user_message_counts = user_message_counts.loc[sorted_users]
-        explode = [0.1] * len(sorted_user_message_counts)  # Explode all slices slightly for emphasis
-        wedges, texts, autotexts = ax.pie(sorted_user_message_counts, labels=None, autopct='', startangle=140, explode=explode)
-        legend_labels = [f'{user} ({count} Messages)' for user, count in zip(sorted_user_message_counts.index, sorted_user_message_counts)]
+        sorted_user_message_counts = user_message_counts.sort_values(ascending=False)
+        if len(sorted_user_message_counts) > 5:
+            top_users = sorted_user_message_counts.head(5)
+            other_users_count = sorted_user_message_counts.iloc[5:].sum()
+            user_message_counts = top_users._append(pd.Series({'Others': other_users_count}))
+        else:
+            top_users = sorted_user_message_counts
+            user_message_counts = top_users
+        fig, ax = plt.subplots(figsize=(8, 8))
+        explode = [0.1] * len(user_message_counts)
+        wedges, texts, autotexts = ax.pie(user_message_counts, labels=None, autopct='%1.1f%%', startangle=140, explode=explode)
+        legend_labels = [f'{user} ({count} Messages)' for user, count in zip(user_message_counts.index, user_message_counts)]
         plt.legend(wedges, legend_labels, title='Users', loc='center left', bbox_to_anchor=(1, 0, 0.5, 1))
         plt.tight_layout()
         st.pyplot(fig)
         return user_message_counts
-    
+
 def generate_deleted_message_pie_chart(name, df):
     if name == 'Overall':
         deleted_messages_df = df[df['message'].isin(['This message was deleted\n', 'You deleted this message\n'])]
@@ -225,6 +231,12 @@ def generate_deleted_message_pie_chart(name, df):
         if user_deleted_counts.empty:
             st.write("No deleted messages found.")
             return
+        if len(user_deleted_counts) > 5:
+            top_users = user_deleted_counts.head(5)
+            other_users_count = user_deleted_counts.iloc[5:].sum()
+            user_deleted_counts = top_users._append(pd.Series({'Others': other_users_count}))
+        else:
+            top_users = user_deleted_counts
         st.title("Deleted messages by users")
         fig, ax = plt.subplots(figsize=(8, 8))
         explode = [0.1] * len(user_deleted_counts)
@@ -338,6 +350,12 @@ def generate_tagged_person_pie_chart(name, df):
         if tagged_counts.empty:
             st.write("No tagged users found.")
             return
+        if len(tagged_counts) > 5:
+            top_users = tagged_counts.head(5)
+            other_users_count = tagged_counts.iloc[5:].sum()
+            tagged_counts = top_users._append(pd.Series({'Others': other_users_count}))
+        else:
+            top_users = tagged_counts
         st.title("Tagged Person")
         fig, ax = plt.subplots(figsize=(8, 8))
         explode = [0.1] * len(tagged_counts)
